@@ -29,8 +29,12 @@ ORIGINS = [o.strip() for o in os.environ.get(
     "ALLOWED_ORIGINS", "https://visotale.com,https://www.visotale.com").split(",") if o.strip()]
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_methods=["POST", "OPTIONS"],
-                   allow_headers=["Content-Type"])
+# Tema önizlemesi (myshopify / shopifypreview adresleri) için de izin ver
+ORIGIN_REGEX = os.environ.get(
+    "ALLOWED_ORIGIN_REGEX",
+    r"https://([a-z0-9-]+\.)*(visotale\.com|myshopify\.com|shopifypreview\.com)")
+app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_origin_regex=ORIGIN_REGEX,
+                   allow_methods=["POST", "OPTIONS"], allow_headers=["Content-Type"])
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
 ISSUED: dict = {}                      # email -> {"code", "expires_at"}
